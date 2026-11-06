@@ -19,10 +19,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
   // Ensure the alarm is running
   await ensureAlarm();
+  updateBadge();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
   await ensureAlarm();
+  updateBadge();
 });
 
 // ── Alarm handler ─────────────────────────────────────────────────────────────
@@ -58,6 +60,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         await checkForOpportunities();
       } else {
         await chrome.alarms.clear(ALARM_NAME);
+        await chrome.action.setBadgeText({ text: '' });
       }
       sendResponse({ ok: true });
     } else if (message.type === 'SET_SOUND') {
@@ -163,9 +166,55 @@ async function waitForTabAndScrape(tabId) {
 }
 
 async function handleCountResult(count) {
+  const { lastCount = 0, soundEnabled = true } = await chrome.storage.local.get({
+    lastCount: 0,
+    soundEnabled: true,
+  });
+
   const now = Date.now();
   await chrome.storage.local.set({ lastCount: count, lastChecked: now });
+
+  updateBadge(count);
+
+  // Only notify when new opportunities appear (count increased)
+  if (count > 0 && count > lastCount) {
+    const diff = count - lastCount;
+    const title = diff === 1
+      ? '🎉 New UserTesting Opportunity!'
+      : `🎉 ${diff} New UserTesting Opportunities!`;
+    const message = count === 1
+      ? '1 test opportunity is waiting for you. Tap to open UserTesting.'
+      : `${count} test opportunities are waiting for you. Tap to open UserTesting.`;
+
+    // Generate icon data URL at runtime (no file dependency)
+    const iconUrl = await getIconDataUrl();
+
+    await chrome.notifications.create('ut-new-opportunity', {
+      type: 'basic',
+      iconUrl,
+      title,
+      message,
+      priority: 2,
+      requireInteraction: true, // Stays on screen until dismissed
+    });
+  }
 }
+
+// ── Notification click → open UserTesting ────────────────────────────────────
+
+chrome.notifications.onClicked.addListener(async (notificationId) => {
+  if (!notificationId.startsWith('ut-')) return;
+  await chrome.notifications.clear(notificationId);
+
+  // Focus existing tab or open new one
+  const tabs = await chrome.tabs.query({ url: 'https://www.usertesting.com/*' });
+  if (tabs.length > 0) {
+    await chrome.tabs.update(tabs[0].id, { active: true });
+    await chrome.windows.update(tabs[0].windowId, { focused: true });
+  } else {
+    await chrome.tabs.create({ url: USERTESTING_URL });
+  }
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -177,4 +226,60 @@ async function ensureAlarm() {
       periodInMinutes: POLL_INTERVAL_MINUTES,
     });
   }
+}
+
+function updateBadge(count) {
+  if (count === undefined || count === null) {
+    chrome.storage.local.get({ lastCount: 0 }, ({ lastCount }) => {
+      setBadge(lastCount);
+    });
+    return;
+  }
+  setBadge(count);
+}
+
+function setBadge(count) {
+  if (count > 0) {
+    chrome.action.setBadgeText({ text: String(count) });
+    chrome.action.setBadgeBackgroundColor({ color: '#E53935' });
+  } else {
+    chrome.action.setBadgeText({ text: '' });
+  }
+}
+
+// Generate a blue rounded-square icon as a data URL (no image file needed)
+async function getIconDataUrl() {
+  const size = 128;
+  const canvas = new OffscreenCanvas(size, size);
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  const r = size / 4;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(size - r, 0);
+  ctx.quadraticCurveTo(size, 0, size, r);
+  ctx.lineTo(size, size - r);
+  ctx.quadraticCurveTo(size, size, size - r, size);
+  ctx.lineTo(r, size);
+  ctx.quadraticCurveTo(0, size, 0, size - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#3B4EFF';
+  ctx.fill();
+
+  // "U" letter
+  ctx.fillStyle = 'white';
+  ctx.font = `bold ${size * 0.5}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('U', size / 2, size / 2);
+
+  const blob = await canvas.convertToBlob({ type: 'image/png' });
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(/** @type {string} */ (reader.result));
+    reader.readAsDataURL(blob);
+  });
 }
