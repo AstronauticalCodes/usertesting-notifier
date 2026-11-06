@@ -1,0 +1,194 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 280px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #1a1a2e;
+  background: #f8f9ff;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 12px;
+  background: #3B4EFF;
+  color: white;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* ── Status card ── */
+.status-card {
+  margin: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 10px;
+  border: 1.5px solid #e8eaff;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(59,78,255,0.07);
+}
+
+.count-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.count {
+  font-size: 36px;
+  font-weight: 700;
+  color: #3B4EFF;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.count.has-opportunities {
+  color: #E53935;
+}
+
+.count-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.last-checked {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #999;
+}
+
+/* ── Controls ── */
+.controls {
+  margin: 0 12px;
+  padding: 10px 14px;
+  background: white;
+  border-radius: 10px;
+  border: 1.5px solid #e8eaff;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+}
+
+.toggle-row:not(:last-child) {
+  border-bottom: 1px solid #f0f0f8;
+}
+
+.toggle-row label:first-child {
+  color: #333;
+  font-size: 13px;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: #3B4EFF;
+}
+
+input:checked + .slider::before {
+  transform: translateX(16px);
+}
+
+/* ── Action buttons ── */
+.actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 12px 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.btn-primary {
+  background: #3B4EFF;
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: #3B4EFF;
+  border: 1.5px solid #3B4EFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  background: #f0f2ff;
+}
+
+/* ── Footer ── */
+.footer {
+  padding: 0 16px 14px;
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+}

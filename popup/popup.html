@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UserTesting Notifier</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect width="20" height="20" rx="5" fill="#3B4EFF"/>
+        <text x="10" y="14" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold" font-size="11">U</text>
+      </svg>
+    </div>
+    <span class="title">UserTesting Notifier</span>
+  </div>
+
+  <div class="status-card" id="statusCard">
+    <div class="count-row">
+      <span class="count" id="opportunityCount">—</span>
+      <span class="count-label">opportunities now</span>
+    </div>
+    <div class="last-checked" id="lastChecked">Checking…</div>
+  </div>
+
+  <div class="controls">
+    <div class="toggle-row">
+      <label for="enabledToggle">Monitoring active</label>
+      <label class="switch">
+        <input type="checkbox" id="enabledToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <label for="soundToggle">Sound alerts</label>
+      <label class="switch">
+        <input type="checkbox" id="soundToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="checkNow" class="btn-primary">Check Now</button>
+    <a id="openUT" href="https://www.usertesting.com/be-a-user" target="_blank" class="btn-secondary">Open UserTesting</a>
+  </div>
+
+  <div class="footer">
+    Checks every 30 seconds automatically
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
